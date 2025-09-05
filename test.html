@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            background-color: #f9f9f9;
+        }
+        .error {
+            border-left-color: #f44336;
+            background-color: #ffebee;
+        }
+        .success {
+            border-left-color: #4CAF50;
+            background-color: #e8f5e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>贪吃蛇游戏诊断测试</h1>
+        <div id="test-results"></div>
+        <br>
+        <button onclick="runTests()">重新运行测试</button>
+        <br><br>
+        <a href="index.html">返回游戏</a>
+    </div>
+
+    <script>
+        function runTests() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '';
+            
+            const tests = [
+                {
+                    name: '检查HTML元素',
+                    test: () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.id = 'gameCanvas';
+                        canvas.width = 400;
+                        canvas.height = 400;
+                        document.body.appendChild(canvas);
+                        
+                        const ctx = canvas.getContext('2d');
+                        return ctx !== null;
+                    }
+                },
+                {
+                    name: '检查Canvas 2D上下文',
+                    test: () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        return ctx && typeof ctx.fillRect === 'function';
+                    }
+                },
+                {
+                    name: '检查localStorage支持',
+                    test: () => {
+                        try {
+                            localStorage.setItem('test', 'test');
+                            localStorage.removeItem('test');
+                            return true;
+                        } catch (e) {
+                            return false;
+                        }
+                    }
+                },
+                {
+                    name: '检查键盘事件支持',
+                    test: () => {
+                        return typeof KeyboardEvent !== 'undefined';
+                    }
+                },
+                {
+                    name: '检查定时器支持',
+                    test: () => {
+                        return typeof setInterval === 'function' && typeof clearInterval === 'function';
+                    }
+                },
+                {
+                    name: '检查数学函数',
+                    test: () => {
+                        return typeof Math.random === 'function' && typeof Math.floor === 'function';
+                    }
+                }
+            ];
+            
+            tests.forEach(test => {
+                const div = document.createElement('div');
+                div.className = 'test-item';
+                
+                try {
+                    const result = test.test();
+                    if (result) {
+                        div.classList.add('success');
+                        div.innerHTML = `✓ ${test.name}: 通过`;
+                    } else {
+                        div.classList.add('error');
+                        div.innerHTML = `✗ ${test.name}: 失败`;
+                    }
+                } catch (error) {
+                    div.classList.add('error');
+                    div.innerHTML = `✗ ${test.name}: 错误 - ${error.message}`;
+                }
+                
+                results.appendChild(div);
+            });
+        }
+        
+        // 页面加载时自动运行测试
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

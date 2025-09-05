@@ -71,7 +71,12 @@ class SnakeGame {
             return;
         }
         
-        if (!this.gameRunning || this.gamePaused) return;
+        // 如果游戏没有运行，按方向键自动开始游戏
+        if (!this.gameRunning) {
+            this.startGame();
+        }
+        
+        if (this.gamePaused) return;
         
         // 方向控制
         switch(e.code) {
@@ -107,6 +112,8 @@ class SnakeGame {
         
         if (!this.gameRunning) {
             this.resetGame();
+            // 确保游戏开始时有初始方向
+            this.direction = {x: 1, y: 0};
         }
         
         this.gameRunning = true;
@@ -154,7 +161,7 @@ class SnakeGame {
     resetGame() {
         this.snake = [{x: 10, y: 10}];
         this.direction = {x: 0, y: 0};
-        this.nextDirection = {x: 0, y: 0};
+        this.nextDirection = {x: 1, y: 0}; // 给蛇一个初始方向（向右）
         this.score = 0;
         this.food = this.generateFood();
         this.gameSpeed = 150;
