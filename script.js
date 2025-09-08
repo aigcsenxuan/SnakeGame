@@ -5,6 +5,8 @@ class SnakeGame {
         this.scoreElement = document.getElementById('score');
         this.highScoreElement = document.getElementById('highScore');
         this.gameStatusElement = document.getElementById('gameStatus');
+        this.speedSlider = document.getElementById('speedSlider');
+        this.speedValueElement = document.getElementById('speedValue');
         
         // 游戏配置
         this.gridSize = 20;
@@ -57,6 +59,11 @@ class SnakeGame {
         
         document.getElementById('restartBtn').addEventListener('click', () => {
             this.restartGame();
+        });
+        
+        // 速度滑块控制
+        this.speedSlider.addEventListener('input', (e) => {
+            this.updateGameSpeed(parseInt(e.target.value));
         });
     }
     
@@ -159,7 +166,11 @@ class SnakeGame {
     }
     
     resetGame() {
-        this.snake = [{x: 10, y: 10}];
+        this.snake = [
+            {x: 10, y: 10},
+            {x: 9, y: 10},
+            {x: 8, y: 10}
+        ];
         this.direction = {x: 0, y: 0};
         this.nextDirection = {x: 1, y: 0}; // 给蛇一个初始方向（向右）
         this.score = 0;
@@ -192,16 +203,7 @@ class SnakeGame {
             this.score += 10;
             this.updateScore();
             this.food = this.generateFood();
-            
-            // 增加游戏速度
-            if (this.gameSpeed > 80) {
-                this.gameSpeed -= 2;
-                clearInterval(this.gameLoop);
-                this.gameLoop = setInterval(() => {
-                    this.update();
-                    this.draw();
-                }, this.gameSpeed);
-            }
+            // 移除自动加速，让玩家通过滑块控制速度
         } else {
             this.snake.pop();
         }
@@ -270,11 +272,11 @@ class SnakeGame {
     drawSnake() {
         this.snake.forEach((segment, index) => {
             if (index === 0) {
-                // 蛇头
-                this.ctx.fillStyle = '#38a169';
+                // 蛇头 - 使用鲜明的橙红色
+                this.ctx.fillStyle = '#ff6b35';
             } else {
-                // 蛇身
-                this.ctx.fillStyle = '#48bb78';
+                // 蛇身 - 使用深绿色
+                this.ctx.fillStyle = '#2d5a27';
             }
             
             this.ctx.fillRect(
@@ -286,7 +288,17 @@ class SnakeGame {
             
             // 添加渐变效果
             if (index === 0) {
-                this.ctx.fillStyle = '#2f855a';
+                // 蛇头高光 - 亮橙色
+                this.ctx.fillStyle = '#ff8c42';
+                this.ctx.fillRect(
+                    segment.x * this.gridSize + 3,
+                    segment.y * this.gridSize + 3,
+                    this.gridSize - 6,
+                    this.gridSize - 6
+                );
+            } else {
+                // 蛇身高光 - 浅绿色
+                this.ctx.fillStyle = '#4a7c59';
                 this.ctx.fillRect(
                     segment.x * this.gridSize + 3,
                     segment.y * this.gridSize + 3,
@@ -339,6 +351,35 @@ class SnakeGame {
     
     updateGameStatus(status) {
         this.gameStatusElement.textContent = status;
+    }
+    
+    updateGameSpeed(speedLevel) {
+        // 速度等级1-10，转换为游戏速度（毫秒）
+        // 等级越高，速度越快（间隔时间越短）
+        const speedMap = {
+            1: 300,  // 最慢
+            2: 250,
+            3: 200,
+            4: 175,
+            5: 150,  // 默认
+            6: 125,
+            7: 100,
+            8: 80,
+            9: 60,
+            10: 40   // 最快
+        };
+        
+        this.gameSpeed = speedMap[speedLevel] || 150;
+        this.speedValueElement.textContent = speedLevel;
+        
+        // 如果游戏正在运行，重新设置定时器
+        if (this.gameRunning && !this.gamePaused) {
+            clearInterval(this.gameLoop);
+            this.gameLoop = setInterval(() => {
+                this.update();
+                this.draw();
+            }, this.gameSpeed);
+        }
     }
     
     gameOver() {
